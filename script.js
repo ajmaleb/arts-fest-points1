@@ -1,46 +1,176 @@
-const sheetID = "1IcyUNaO1QGfnVJ3lf21dgImLCz_yvaUjy4hKs0CW9z8";
-const sheetName = "Form Responses 1";
+document.addEventListener("DOMContentLoaded", () => {
 
-const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}`;
+  // ================= CONFIG =================
+  const sheetID = "1AR6lA4a63wnyBQCzo7hWo3OjvJMdOGogJvq4dOCmLB8";
+  const sheetName = "Form Responses 1";
+  const RESULTS_FINALISED = false;
 
-fetch(url)
-  .then(res => res.text())
-  .then(text => {
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows;
+  const departments = [
+    "Department of Science",
+    "Department of Commerce",
+    "Department of Computer Science and Statistics",
+    "Department of Economics",
+    "Department of History"
+  ];
 
-    const tbody = document.querySelector("#pointsTable tbody");
-    tbody.innerHTML = "";
+  const individualItems = [
+    "Essay Writing (Malayalam)","Essay Writing (English)","Essay Writing (Hindi)",
+    "Essay Writing (Tamil)","Essay Writing (Arabic)","Essay Writing (Sanskrit)",
+    "Short Story Writing (Malayalam)","Short Story Writing (English)",
+    "Short Story Writing (Hindi)","Short Story Writing (Tamil)",
+    "Short Story Writing (Arabic)","Short Story Writing (Sanskrit)",
+    "Poetry Writing (Malayalam)","Poetry Writing (English)",
+    "Poetry Writing (Hindi)","Poetry Writing (Tamil)",
+    "Poetry Writing (Sanskrit)","Film Review",
+    "On the Spot Painting","Poster Designing","Cartooning","Rangoli",
+    "Mehndi","Collage","Clay Modelling","Photography",
+    "Light Music","Western Music","Instrumental Music","Folk Dance",
+    "Bharatanatyam","Kerala Nadanam","Kuchipudi","Kathak","Mappilapattu",
+    "Mono Act","Standup Comedy","Kathaprasangam",
+    "Elocution (Malayalam)","Elocution (English)","Elocution (Tamil)",
+    "Poem Recitation (Malayalam)","Poem Recitation (English)",
+    "Poem Recitation (Tamil)","Poem Recitation (Arabic)"
+  ];
 
-    if (!rows || rows.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='5'>No data available</td></tr>";
-      return;
-    }
+  const groupItems = [
+    "Installation","Nadanpattu","Thiruvathira","Vanchipattu",
+    "Mime","Margham Kali","Oppana","Debate","Quiz"
+  ];
 
-    rows.forEach(r => {
-      let tr = document.createElement("tr");
+  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}`;
 
-      // Columns: Timestamp | RegNo | Name | Dept | Event | Points
-      for (let i = 1; i <= 5; i++) {
-        let td = document.createElement("td");
-        td.textContent = r.c[i] ? r.c[i].v : "";
-        tr.appendChild(td);
+  let sheetData = [];
+  let announcedCache = new Set();
+
+  // ================= SAFE DOM GET =================
+  const el = id => document.getElementById(id);
+
+  // ================= LOAD DATA =================
+  function loadData() {
+    fetch(url)
+      .then(res => res.text())
+      .then(text => {
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+
+        sheetData = json.table.rows.map(r => ({
+          itemType: r.c[1]?.v,
+          itemName: r.c[2]?.v,
+          position: r.c[3]?.v,
+          department: r.c[4]?.v,
+          chest: r.c[5]?.v,
+          participants: r.c[6]?.v
+        }));
+
+        updateLeaderboard();
+        renderItems();
+        updateDropdowns();
+
+        if (el("last-updated"))
+          el("last-updated").innerText =
+            "Last updated: " + new Date().toLocaleTimeString();
+      })
+      .catch(err => {
+        console.error("DATA LOAD ERROR:", err);
+        alert("Cannot load Google Sheet. Check sharing & tab name.");
+      });
+  }
+
+  // ================= POINTS =================
+  function getPoints(type, pos) {
+    return type === "Individual"
+      ? (pos == 1 ? 5 : pos == 2 ? 3 : 1)
+      : (pos == 1 ? 10 : pos == 2 ? 6 : 2);
+  }
+
+  // ================= LEADERBOARD =================
+  function updateLeaderboard() {
+    if (!el("leaderboard-body")) return;
+
+    let scores = {};
+    departments.forEach(d => scores[d] = 0);
+
+    sheetData.forEach(r => {
+      if (scores[r.department] !== undefined) {
+        scores[r.department] += getPoints(r.itemType, r.position);
       }
-
-      tbody.appendChild(tr);
     });
-  })
-  .catch(error => {
-    console.error("ERROR:", error);
-    alert("Cannot load data. Check sheet sharing or internet.");
-  });
-document.getElementById("search").addEventListener("keyup", function () {
-    let value = this.value.toLowerCase();
-    let rows = document.querySelectorAll("#pointsTable tbody tr");
 
-    rows.forEach(row => {
-        let text = row.textContent.toLowerCase();
-        row.style.display = text.includes(value) ? "" : "none";
+    el("leaderboard-body").innerHTML = "";
+    Object.entries(scores)
+      .sort((a,b)=>b[1]-a[1])
+      .forEach((d,i)=>{
+        el("leaderboard-body").innerHTML += `
+          <tr><td>${i+1}</td><td>${d[0]}</td><td>${d[1]}</td></tr>`;
+      });
+  }
+
+  // ================= ITEMS =================
+  function renderItems() {
+    renderList("individual-items", individualItems);
+    renderList("group-items", groupItems);
+  }
+
+  function renderList(id, items) {
+    if (!el(id)) return;
+    el(id).innerHTML = "";
+
+    items.forEach(item => {
+      const announced = sheetData.some(r => r.itemName === item);
+      const isNew = announced && !announcedCache.has(item);
+      if (announced) announcedCache.add(item);
+
+      el(id).innerHTML += `
+        <li class="${isNew ? "new-announcement" : ""}">
+          ${item}
+          <span class="status ${announced ? "announced":"not-announced"}"
+            ${announced ? `onclick="showResults('${item}')"` : ""}>
+            ${announced ? "Result Announced":"Result Not Announced"}
+          </span>
+        </li>`;
     });
+  }
+
+  // ================= RESULTS =================
+  window.showResults = function(item) {
+    if (!el("results-body")) return;
+
+    el("selected-item").innerText = item;
+    el("results-body").innerHTML = "";
+
+    sheetData
+      .filter(r => r.itemName === item)
+      .sort((a,b)=>a.position-b.position)
+      .forEach(r=>{
+        const medal = r.position==1?"🥇 First":r.position==2?"🥈 Second":"🥉 Third";
+        el("results-body").innerHTML += `
+          <tr><td>${medal}</td><td>${r.department}</td>
+          <td>${r.chest}</td><td>${r.participants}</td></tr>`;
+      });
+
+    el("results-section")?.scrollIntoView({behavior:"smooth"});
+  };
+
+  // ================= DROPDOWNS =================
+  function updateDropdowns() {
+    if (!el("item-type") || !el("item-name")) return;
+
+    el("item-type").onchange = () => {
+      el("item-name").innerHTML = `<option value="">-- Select Item --</option>`;
+      const list = el("item-type").value === "Individual" ? individualItems : groupItems;
+      list.forEach(i=>{
+        const o = document.createElement("option");
+        o.value=i; o.textContent=i;
+        el("item-name").appendChild(o);
+      });
+    };
+
+    el("item-name").onchange = () => {
+      if (el("item-name").value) showResults(el("item-name").value);
+    };
+  }
+
+  // ================= START =================
+  loadData();
+  if (!RESULTS_FINALISED) setInterval(loadData, 30000);
+
 });
-
