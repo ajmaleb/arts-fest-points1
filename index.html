@@ -2,32 +2,111 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Arts Fest Points</title>
+    <title>Arts Fest 2026 – Live Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
+<!-- ================= HEADER ================= -->
+<header class="site-header">
     <h1>MES COLLEGE NEDUMKANDAM</h1>
-    <h1>College Arts Fest 2026</h1>
+    <h2>ARTS FEST 2026</h2>
     <p>Live Points Update</p>
+    <p id="last-updated"></p>
 </header>
 
-<input type="text" id="search" placeholder="Search Register No / Name / Dept" />
+<!-- FINALISED BANNER -->
+<p id="final-banner">🔒 Results Finalised</p>
 
-<table id="pointsTable">
-    <thead>
-        <tr>
-            <th>Register No</th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Event</th>
-            <th>Points</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+<!-- ============ OVERALL LEADERBOARD ============ -->
+<section class="section">
+    <h2>🏆 Overall Department Leaderboard</h2>
 
+    <table>
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Department</th>
+                <th>Total Points</th>
+            </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+            <!-- Filled by JS -->
+        </tbody>
+    </table>
+</section>
+
+<!-- ============ EVENT SELECTOR (DROPDOWN) ============ -->
+<section class="section">
+    <h2>🎯 View Event Results</h2>
+
+    <div class="selector-row">
+        <label>
+            Item Type:
+            <select id="item-type">
+                <option value="">-- Select Type --</option>
+                <option value="Individual">Individual</option>
+                <option value="Group">Group</option>
+            </select>
+        </label>
+
+        <label>
+            Item Name:
+            <select id="item-name">
+                <option value="">-- Select Item --</option>
+            </select>
+        </label>
+    </div>
+</section>
+
+<!-- ============ ITEM LIST SECTION ============ -->
+<section class="section">
+    <h2>🎭 Arts Fest Items</h2>
+
+    <h3>🧍 Individual Items</h3>
+    <ul id="individual-items"></ul>
+
+    <h3>👥 Group Items</h3>
+    <ul id="group-items"></ul>
+</section>
+
+<!-- ============ EVENT RESULTS (WINNERS ONLY) ============ -->
+<section class="section" id="results-section">
+    <h2>🥇🥈🥉 Event-wise Results</h2>
+    <h3 id="selected-item">Select an item to view results</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Position</th>
+                <th>Department</th>
+                <th>Chest Number</th>
+                <th>Participant(s)</th>
+            </tr>
+        </thead>
+        <tbody id="results-body">
+            <!-- Winners filled by JS -->
+        </tbody>
+    </table>
+</section>
+
+<!-- PRINT BUTTON -->
+<div class="print-container">
+    <button onclick="window.print()" class="print-btn">
+        📄 Print / Save as PDF
+    </button>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+    <p>© Arts Club | MES College Nedumkandam</p>
+</footer>
+
+<!-- JS -->
 <script src="script.js"></script>
+
 </body>
 </html>
