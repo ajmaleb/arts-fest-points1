@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ================= CONFIG =================
+  /* ================= CONFIG ================= */
   const sheetID = "1AR6lA4a63wnyBQCzo7hWo3OjvJMdOGogJvq4dOCmLB8";
   const sheetName = "Form Responses 1";
-  const RESULTS_FINALISED = false;
+  const RESULTS_FINALISED = false; // set true after fest
 
   const departments = [
     "Department of Science",
@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Department of History"
   ];
 
+  /* ================= ITEMS ================= */
   const individualItems = [
     "Essay Writing (Malayalam)","Essay Writing (English)","Essay Writing (Hindi)",
     "Essay Writing (Tamil)","Essay Writing (Arabic)","Essay Writing (Sanskrit)",
@@ -37,15 +38,25 @@ document.addEventListener("DOMContentLoaded", () => {
     "Mime","Margham Kali","Oppana","Debate","Quiz"
   ];
 
-  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}`;
+  const url =
+    `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}`;
 
   let sheetData = [];
   let announcedCache = new Set();
 
-  // ================= SAFE DOM GET =================
+  /* ================= SAFE DOM ================= */
   const el = id => document.getElementById(id);
 
-  // ================= LOAD DATA =================
+  /* ================= POINTS ================= */
+  function getPoints(type, pos) {
+    if (type === "Individual") {
+      return pos == 1 ? 5 : pos == 2 ? 3 : 1;
+    } else {
+      return pos == 1 ? 10 : pos == 2 ? 6 : 2;
+    }
+  }
+
+  /* ================= LOAD DATA ================= */
   function loadData() {
     fetch(url)
       .then(res => res.text())
@@ -65,46 +76,58 @@ document.addEventListener("DOMContentLoaded", () => {
         renderItems();
         updateDropdowns();
 
-        if (el("last-updated"))
+        if (el("last-updated")) {
           el("last-updated").innerText =
             "Last updated: " + new Date().toLocaleTimeString();
+        }
       })
       .catch(err => {
         console.error("DATA LOAD ERROR:", err);
-        alert("Cannot load Google Sheet. Check sharing & tab name.");
+        alert("Cannot load data. Check Google Sheet sharing & tab name.");
       });
   }
 
-  // ================= POINTS =================
-  function getPoints(type, pos) {
-    return type === "Individual"
-      ? (pos == 1 ? 5 : pos == 2 ? 3 : 1)
-      : (pos == 1 ? 10 : pos == 2 ? 6 : 2);
-  }
-
-  // ================= LEADERBOARD =================
+  /* ================= LEADERBOARD (DENSE RANKING) ================= */
   function updateLeaderboard() {
     if (!el("leaderboard-body")) return;
 
+    // Initialize scores
     let scores = {};
     departments.forEach(d => scores[d] = 0);
 
+    // Add points
     sheetData.forEach(r => {
-      if (scores[r.department] !== undefined) {
+      if (scores.hasOwnProperty(r.department)) {
         scores[r.department] += getPoints(r.itemType, r.position);
       }
     });
 
+    // Sort by score DESC
+    const sorted = Object.entries(scores)
+      .sort((a, b) => b[1] - a[1]);
+
+    // Dense ranking
     el("leaderboard-body").innerHTML = "";
-    Object.entries(scores)
-      .sort((a,b)=>b[1]-a[1])
-      .forEach((d,i)=>{
-        el("leaderboard-body").innerHTML += `
-          <tr><td>${i+1}</td><td>${d[0]}</td><td>${d[1]}</td></tr>`;
-      });
+
+    let rank = 1;
+    let prevScore = sorted.length ? sorted[0][1] : null;
+
+    sorted.forEach(([dept, score], index) => {
+      if (index > 0 && score < prevScore) {
+        rank++;          // increase rank only when score drops
+        prevScore = score;
+      }
+
+      el("leaderboard-body").innerHTML += `
+        <tr>
+          <td>${rank}</td>
+          <td>${dept}</td>
+          <td>${score}</td>
+        </tr>`;
+    });
   }
 
-  // ================= ITEMS =================
+  /* ================= ITEM LISTS ================= */
   function renderItems() {
     renderList("individual-items", individualItems);
     renderList("group-items", groupItems);
@@ -122,15 +145,15 @@ document.addEventListener("DOMContentLoaded", () => {
       el(id).innerHTML += `
         <li class="${isNew ? "new-announcement" : ""}">
           ${item}
-          <span class="status ${announced ? "announced":"not-announced"}"
+          <span class="status ${announced ? "announced" : "not-announced"}"
             ${announced ? `onclick="showResults('${item}')"` : ""}>
-            ${announced ? "Result Announced":"Result Not Announced"}
+            ${announced ? "Result Announced" : "Result Not Announced"}
           </span>
         </li>`;
     });
   }
 
-  // ================= RESULTS =================
+  /* ================= SHOW RESULTS ================= */
   window.showResults = function(item) {
     if (!el("results-body")) return;
 
@@ -139,38 +162,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sheetData
       .filter(r => r.itemName === item)
-      .sort((a,b)=>a.position-b.position)
-      .forEach(r=>{
-        const medal = r.position==1?"🥇 First":r.position==2?"🥈 Second":"🥉 Third";
+      .sort((a, b) => a.position - b.position)
+      .forEach(r => {
+        const medal =
+          r.position == 1 ? "🥇 First" :
+          r.position == 2 ? "🥈 Second" : "🥉 Third";
+
         el("results-body").innerHTML += `
-          <tr><td>${medal}</td><td>${r.department}</td>
-          <td>${r.chest}</td><td>${r.participants}</td></tr>`;
+          <tr>
+            <td>${medal}</td>
+            <td>${r.department}</td>
+            <td>${r.chest}</td>
+            <td>${r.participants}</td>
+          </tr>`;
       });
 
-    el("results-section")?.scrollIntoView({behavior:"smooth"});
+    el("results-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ================= DROPDOWNS =================
+  /* ================= DROPDOWNS ================= */
   function updateDropdowns() {
     if (!el("item-type") || !el("item-name")) return;
 
     el("item-type").onchange = () => {
-      el("item-name").innerHTML = `<option value="">-- Select Item --</option>`;
-      const list = el("item-type").value === "Individual" ? individualItems : groupItems;
-      list.forEach(i=>{
-        const o = document.createElement("option");
-        o.value=i; o.textContent=i;
-        el("item-name").appendChild(o);
+      el("item-name").innerHTML =
+        `<option value="">-- Select Item --</option>`;
+
+      const list =
+        el("item-type").value === "Individual"
+          ? individualItems
+          : groupItems;
+
+      list.forEach(i => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = i;
+        el("item-name").appendChild(opt);
       });
     };
 
     el("item-name").onchange = () => {
-      if (el("item-name").value) showResults(el("item-name").value);
+      if (el("item-name").value) {
+        showResults(el("item-name").value);
+      }
     };
   }
 
-  // ================= START =================
+  /* ================= START ================= */
   loadData();
-  if (!RESULTS_FINALISED) setInterval(loadData, 30000);
+  if (!RESULTS_FINALISED) {
+    setInterval(loadData, 30000);
+  }
 
 });
