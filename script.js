@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const groupItems = [
     "Installation","Nadanpattu","Thiruvathira","Vanchipattu",
-    "Mime","Margham Kali","Oppana","Debate","Quiz"
+    "Mime","Margham Kali","Oppana","Debate","Quiz","Group Song"
   ];
 
   const url =
@@ -215,3 +215,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
