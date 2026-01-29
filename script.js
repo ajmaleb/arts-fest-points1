@@ -15,27 +15,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= ITEMS ================= */
   const individualItems = [
-    "Essay Writing (Malayalam)","Essay Writing (English)","Essay Writing (Hindi)",
-    "Essay Writing (Tamil)","Essay Writing (Arabic)","Essay Writing (Sanskrit)",
-    "Short Story Writing (Malayalam)","Short Story Writing (English)",
-    "Short Story Writing (Hindi)","Short Story Writing (Tamil)",
-    "Short Story Writing (Arabic)","Short Story Writing (Sanskrit)",
-    "Poetry Writing (Malayalam)","Poetry Writing (English)",
-    "Poetry Writing (Hindi)","Poetry Writing (Tamil)",
-    "Poetry Writing (Sanskrit)","Film Review",
+    "Essay Writing (Malayalam)","Essay Writing (English)",
+    "Essay Writing (Tamil)","Short Story Writing (Malayalam)","Short Story Writing (English)","Short Story Writing (Tamil)",
+    "Poetry Writing (Malayalam)","Poetry Writing (English)","Film Review",
     "On the Spot Painting","Poster Designing","Cartooning","Rangoli",
     "Mehndi","Collage","Clay Modelling","Photography",
-    "Light Music","Western Music","Instrumental Music","Folk Dance",
+    "Light Music","Western Music","Folk Dance",
     "Bharatanatyam","Kerala Nadanam","Kuchipudi","Kathak","Mappilapattu",
-    "Mono Act","Standup Comedy","Kathaprasangam",
-    "Elocution (Malayalam)","Elocution (English)","Elocution (Tamil)",
-    "Poem Recitation (Malayalam)","Poem Recitation (English)",
-    "Poem Recitation (Tamil)","Poem Recitation (Arabic)"
+    "Mono Act","Standup Comedy","Elocution (Malayalam)","Elocution (English)","Elocution (Tamil)",
+    "Poem Recitation (Malayalam)","Poem Recitation (Tamil)","Poem Recitation (Arabic)"
   ];
 
   const groupItems = [
     "Installation","Nadanpattu","Thiruvathira","Vanchipattu",
-    "Mime","Margham Kali","Oppana","Debate","Quiz","Group Song"
+    "Mime","Debate","Quiz","Group Song"
   ];
 
   const url =
@@ -215,4 +208,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
 
