@@ -14,22 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   /* ================= ITEMS ================= */
-  const individualItems = [
-    "Essay Writing (Malayalam)","Essay Writing (English)",
-    "Essay Writing (Tamil)","Short Story Writing (Malayalam)","Short Story Writing (English)","Short Story Writing (Tamil)",
-    "Poetry Writing (Malayalam)","Poetry Writing (English)","Film Review",
-    "On the Spot Painting","Poster Designing","Cartooning","Rangoli",
-    "Mehndi","Collage","Clay Modelling","Photography",
-    "Light Music","Western Music","Folk Dance",
-    "Bharatanatyam","Kerala Nadanam","Kuchipudi","Kathak","Mappilapattu",
-    "Mono Act","Standup Comedy","Elocution (Malayalam)","Elocution (English)","Elocution (Tamil)",
-    "Poem Recitation (Malayalam)","Poem Recitation (Tamil)","Poem Recitation (Arabic)"
+  const individualItems = ["800m Boys","800m Girls","400m Boys","400m Girls","200m Boys","200m Girls","100m Boys","100m Girls","1500m Boys","1500m Girls","Javelin throw Boys","Javelin throw Girls","Shot-Put Boys","Shot-Put Girls"
+    
   ];
 
-  const groupItems = [
-    "Installation","Nadanpattu","Thiruvathira","Vanchipattu",
-    "Mime","Debate","Quiz","Group Song"
-  ];
+  const groupItems = ["Relay 4*100m Boys","Relay 4*100m Girls"];
 
   const url =
     `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}`;
@@ -45,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (type === "Individual") {
       return pos == 1 ? 5 : pos == 2 ? 3 : 1;
     } else {
-      return pos == 1 ? 10 : pos == 2 ? 6 : 2;
+      return pos == 1 ? 10 : pos == 2 ? 6 : 3;
     }
   }
 
@@ -208,5 +197,3 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
-
-
